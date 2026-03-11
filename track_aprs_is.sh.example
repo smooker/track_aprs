@@ -5,4 +5,4 @@
 export APRS_CALL="YOURCALL"
 export APRS_PASSCODE="00000"
 
-exec perl "$(dirname "$0")/track_lz1ccm.pl" "$@"
+exec perl "$(dirname "$0")/track_aprs_is.pl" "$@"

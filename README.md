@@ -5,19 +5,19 @@ Real-time APRS position tracker via direct APRS-IS TCP stream.
 ## Quick Start
 
 ```bash
-cp startup.sh.example startup.sh
-# Edit startup.sh with your callsign and passcode
-./startup.sh
+cp track_aprs_is.sh.example track_aprs_is.sh
+# Edit track_aprs_is.sh with your callsign and passcode
+./track_aprs_is.sh
 ```
 
 ## Files
 
 | File               | Description                                    |
 |--------------------|------------------------------------------------|
-| `track_lz1ccm.pl`  | Main tracker — APRS-IS TCP stream, parser, log |
-| `callsigns.conf`   | Tracked callsigns (one per line, `*` wildcard) |
-| `parse_raw.py`     | Parse raw APRS packets (offline/debug)         |
-| `startup.sh`       | Your credentials (gitignored)                  |
+| `track_aprs_is.pl`       | Main tracker — APRS-IS TCP stream, parser, log |
+| `callsigns.conf`         | Tracked callsigns (one per line, `*` wildcard) |
+| `parse_raw.py`           | Parse raw APRS packets (offline/debug)         |
+| `track_aprs_is.sh`       | Your credentials (gitignored)                  |
 
 ## Configuration
 

@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-track_lz1ccm.pl — Real-time APRS position tracker via APRS-IS TCP stream
+track_aprs_is.pl — Real-time APRS position tracker via APRS-IS TCP stream
 
 =head1 SYNOPSIS
 
-    ./track_lz1ccm.pl
+    ./track_aprs_is.pl
 
 =head1 DESCRIPTION
 
