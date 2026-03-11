@@ -1,0 +1,8 @@
+#!/bin/bash
+# APRS-IS tracker — copy to startup.sh and fill in your credentials
+# startup.sh is .gitignore'd — safe for passwords
+
+export APRS_CALL="YOURCALL"
+export APRS_PASSCODE="00000"
+
+exec perl "$(dirname "$0")/track_lz1ccm.pl" "$@"

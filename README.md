@@ -1,0 +1,53 @@
+# APRS.fi Tracker
+
+Real-time APRS position tracker via direct APRS-IS TCP stream.
+
+## Quick Start
+
+```bash
+cp startup.sh.example startup.sh
+# Edit startup.sh with your callsign and passcode
+./startup.sh
+```
+
+## Files
+
+| File               | Description                                    |
+|--------------------|------------------------------------------------|
+| `track_lz1ccm.pl`  | Main tracker — APRS-IS TCP stream, parser, log |
+| `callsigns.conf`   | Tracked callsigns (one per line, `*` wildcard) |
+| `parse_raw.py`     | Parse raw APRS packets (offline/debug)         |
+| `startup.sh`       | Your credentials (gitignored)                  |
+
+## Configuration
+
+Edit `callsigns.conf` to add/remove tracked stations:
+
+```
+LZ1CCM*
+LZ3SP*
+```
+
+## Environment Variables
+
+| Variable         | Description                          |
+|------------------|--------------------------------------|
+| `APRS_CALL`      | Your callsign (without SSID)         |
+| `APRS_PASSCODE`  | APRS-IS passcode (computed from call)|
+
+## Station Info
+
+- **Callsign**: LZ1CCM-9 (SSID -9 = mobile)
+- **Operator**: Miroslav Tzonkov
+- **QTH**: Sofia, 42°39'N 23°21'E
+- **Radio**: Baofeng DM-32UV (GPS + DMR)
+- **APRS paths**:
+  - Brandmeister: `LZ1CCM,DMR*,qAR,LZ1CCM` (tocall APBM1D)
+  - DMR+: `LZ0DDA,TCPIP*,qAU,FOURTH` (tocall APDMRP, repeater LZ0DDA)
+
+## aprs.fi HTTP API (legacy, slower)
+
+- **Base URL**: `https://api.aprs.fi/api/get`
+- **Docs**: https://aprs.fi/page/api
+- Note: API caches data — introduces delay vs APRS-IS TCP stream
+- Note: Wildcard `*` does NOT work in API — use exact SSID
