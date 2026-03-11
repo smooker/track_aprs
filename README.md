@@ -30,10 +30,11 @@ LZ3SP*
 
 ## Environment Variables
 
-| Variable         | Description                          |
-|------------------|--------------------------------------|
-| `APRS_CALL`      | Your callsign (without SSID)         |
-| `APRS_PASSCODE`  | APRS-IS passcode (computed from call)|
+| Variable         | Description                                |
+|------------------|--------------------------------------------|
+| `APRS_CALL`      | Your callsign (without SSID)               |
+| `APRS_PASSCODE`  | APRS-IS passcode (computed from call)      |
+| `APRS_FI_KEY`    | aprs.fi API key — optional, fetches history|
 
 ## Station Info
 

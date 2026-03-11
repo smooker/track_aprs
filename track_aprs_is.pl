@@ -16,7 +16,8 @@ incoming position reports in real time.  Unlike the aprs.fi HTTP API
 packets the moment they enter the network.
 
 On startup the script prints the last 10 entries from the log file,
-then listens for new packets.  Each received position is printed to
+optionally fetches recent positions from the aprs.fi HTTP API (if
+C<APRS_FI_KEY> is set), then listens for new packets.  Each received position is printed to
 the terminal and appended to C<lz1ccm.log>.  Server keepalive messages
 are shown as heartbeat dots.
 
@@ -66,7 +67,7 @@ Other paths are shown as C<?>.
 
 =head1 DEPENDENCIES
 
-Core Perl modules only: L<IO::Socket::INET>, L<POSIX>, L<FindBin>.
+Core Perl modules only: L<IO::Socket::INET>, L<JSON::PP>, L<POSIX>, L<FindBin>.
 
 =head1 HISTORY
 
@@ -88,11 +89,13 @@ Free to use, 73!
 use strict;
 use warnings;
 use IO::Socket::INET;
+use JSON::PP;
 use POSIX qw(strftime mktime);
 use FindBin qw($RealBin);
 
-my $CALL     = $ENV{APRS_CALL}     || die "Set APRS_CALL env var (or use startup.sh)\n";
-my $PASSCODE = $ENV{APRS_PASSCODE} || die "Set APRS_PASSCODE env var (or use startup.sh)\n";
+my $CALL     = $ENV{APRS_CALL}     || die "Set APRS_CALL env var (or use track_aprs_is.sh)\n";
+my $PASSCODE = $ENV{APRS_PASSCODE} || die "Set APRS_PASSCODE env var (or use track_aprs_is.sh)\n";
+my $API_KEY  = $ENV{APRS_FI_KEY}   || '';  # optional, for history fetch
 my $SERVER   = 'rotate.aprs2.net';
 my $PORT     = 14580;
 my $LOGFILE  = "$RealBin/lz1ccm.log";
@@ -161,6 +164,69 @@ if (-f $LOGFILE) {
 
 open my $log, '>>', $LOGFILE or warn "Can't open log: $!\n";
 $log->autoflush(1);
+
+# --- Fetch history from aprs.fi API on startup ---
+
+sub fetch_history {
+    return unless $API_KEY;
+
+    # aprs.fi API doesn't support wildcards — strip * and add common SSIDs
+    my @api_calls;
+    for my $c (@CALLS) {
+        if ($c =~ /\*$/) {
+            my $base = $c;
+            $base =~ s/\*$//;
+            # Query base call + common SSIDs
+            push @api_calls, $base;
+            for my $ssid (1..15) {
+                push @api_calls, "$base-$ssid";
+            }
+        } else {
+            push @api_calls, $c;
+        }
+    }
+
+    # API allows up to 20 names per request
+    while (my @batch = splice(@api_calls, 0, 20)) {
+        my $names = join(',', @batch);
+        my $url = "https://api.aprs.fi/api/get?name=$names&what=loc&apikey=$API_KEY&format=json";
+        my $json = `curl -sf "\Q$url\E"`;
+        next unless $json;
+
+        eval {
+            my $d = decode_json($json);
+            for my $e (@{$d->{entries} || []}) {
+                my $lt = $e->{lasttime} || 0;
+                next if $seen{$lt};
+
+                my $ts   = strftime('%Y-%m-%d %H:%M:%S', localtime($lt));
+                my $lat  = $e->{lat}     // next;
+                my $lon  = $e->{lng}     // next;
+                my $crs  = sprintf('%03d', $e->{course} // 0);
+                my $spd  = sprintf('%03d', $e->{speed}  // 0);
+                my $name = $e->{name}    // '?';
+                my $comment = $e->{comment} // '';
+
+                my $via = '?';
+                $via = 'Brandmeister' if ($e->{path} // '') =~ /APBM1D/;
+                $via = "DMR+ $1"      if ($e->{path} // '') =~ /APDMRP.*?,([\w]+)/;
+
+                my $out = sprintf "%20s  %-10s  %9.5f  %9.5f  %3s  %3s  %-12s  %s",
+                    $ts, $name, $lat, $lon, $crs, $spd, $via, $comment;
+
+                print "  [api] $out\n";
+                print $log "$out\n";
+                $seen{$lt} = 1;
+                $last_ts = $lt if $lt > $last_ts;
+            }
+        };
+        warn "API parse error: $@\n" if $@;
+    }
+}
+
+print "  Fetching history from aprs.fi...\n" if $API_KEY;
+fetch_history();
+print "$sep\n" if $API_KEY;
 
 # --- APRS position parsers ---
 

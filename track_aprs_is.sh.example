@@ -4,5 +4,6 @@
 
 export APRS_CALL="YOURCALL"
 export APRS_PASSCODE="00000"
+export APRS_FI_KEY=""  # optional: aprs.fi API key for history on startup
 
 exec perl "$(dirname "$0")/track_aprs_is.pl" "$@"
