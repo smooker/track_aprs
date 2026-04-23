@@ -165,6 +165,11 @@ if (-f $LOGFILE) {
 open my $log, '>>', $LOGFILE or warn "Can't open log: $!\n";
 $log->autoflush(1);
 
+# Raw APRS-IS packets log — written unparsed so we can see full path
+(my $RAWLOG = $LOGFILE) =~ s/\.log$/_raw.log/;
+open my $raw_log, '>>', $RAWLOG or warn "Cant open raw log: $!\n";
+$raw_log->autoflush(1);
+
 # --- Fetch history from aprs.fi API on startup ---
 
 sub fetch_history {
@@ -347,6 +352,9 @@ while (1) {
             print ".";
             next;
         }
+
+        # Raw log — every non-keepalive line (path visible here)
+        print $raw_log strftime("%Y-%m-%d %H:%M:%S  ", localtime()), $line, "\n";
 
         my $p = parse_aprs_packet($line);
         next unless $p;
