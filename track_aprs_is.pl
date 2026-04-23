@@ -204,7 +204,7 @@ sub fetch_history {
                 my $lt = $e->{lasttime} || 0;
                 next if $seen{$lt};
 
-                my $ts   = strftime('%Y-%m-%d %H:%M:%S', localtime($lt));
+                my $ts   = strftime('%Y-%m-%d %H:%M:%S', gmtime($lt));
                 my $lat  = $e->{lat}     // next;
                 my $lon  = $e->{lng}     // next;
                 my $crs  = sprintf('%03d', $e->{course} // 0);
@@ -354,7 +354,7 @@ while (1) {
         }
 
         # Raw log — every non-keepalive line (path visible here)
-        print $raw_log strftime("%Y-%m-%d %H:%M:%S  ", localtime()), $line, "\n";
+        print $raw_log strftime("%Y-%m-%d %H:%M:%S  ", gmtime()), $line, "\n";
 
         my $p = parse_aprs_packet($line);
         next unless $p;
@@ -363,7 +363,7 @@ while (1) {
         my $key = "$p->{name}:$now";
         next if $seen{$key};
 
-        my $ts = strftime('%Y-%m-%d %H:%M:%S', localtime($now));
+        my $ts = strftime('%Y-%m-%d %H:%M:%S', gmtime($now));
 
         my $out = sprintf "%20s  %-10s  %9.5f  %9.5f  %3s  %3s  %-12s  %s",
             $ts, $p->{name}, $p->{lat}, $p->{lon}, $p->{crs}, $p->{spd}, $p->{via}, $p->{comment};

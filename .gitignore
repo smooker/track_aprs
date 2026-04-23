@@ -1,2 +1,9 @@
-track_aprs_is.sh
+# Runtime log files (rotated manually; kept out of git)
 *.log
+*.log.*
+
+# Editor/backup copies
+*.bak.*
+
+# Sensitive local runner (has APRS-IS passcode)
+track_aprs_is.sh
